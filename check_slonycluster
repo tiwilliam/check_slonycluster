@@ -2,28 +2,26 @@
 #
 # William Tisäter <william@defunct.cc>
 #
-# Alert if slony lags
+# Nagios plugin for checking Slony-I lag status
 # 
 
-# check parameters are valid
 if [[ $# -ne 3 ]]
 then
   echo "Usage: $0 <master> <cluster name> <dbname>"
   exit 2
 fi
 
-# assign parameters
 HOSTNAME=$1
 CLUSTERNAME=$2
 DBNAME=$3
 
-TIME_BEHIND_WARN="900"
+TIME_BEHIND_WARN="600"
 TIME_BEHIND_CRIT="3600"
 
-# query the master database
 nodelag=`/usr/bin/psql -h $HOSTNAME -c "select st_received, extract('epoch' from st_lag_time) from _${CLUSTERNAME}.sl_status ORDER BY st_lag_time DESC" -t $DBNAME`
 
 if [ ! -n "$nodelag" ]; then
+	echo "WARNING: Failed to get lag time"
 	exit 1
 fi
 
@@ -34,22 +32,21 @@ for node in $nodelag; do
 	nodename=$(/usr/bin/psql -h $HOSTNAME -c "select pa_conninfo from _${CLUSTERNAME}.sl_path where pa_server = $nodeid limit 1" -t $DBNAME | sed 's/.*host\=\([^ ]\+\) .*/\1/')
 
 	if [ ! -n "$nodename" ]; then
+		echo "WARNING: Failed to resolve node id"
 		exit 1
 	fi
 
+	string="${string}($nodename $lag seconds) "
+
 	if [ $lag -gt $TIME_BEHIND_CRIT ]; then
-		string="${string}($nodename lagging $lag seconds) "
 		critical=1
 		continue
 	fi
 
 	if [ $lag -gt $TIME_BEHIND_WARN ]; then
-		string="${string}($nodename lagging $lag seconds) "
 		warning=1
 		continue
 	fi
-
-	string="${string}($nodename $lag seconds) "
 done
 
 if [ ! -z $critical ]; then
