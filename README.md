@@ -1,2 +1,2 @@
-nagios# ./check_slonycluster dbmaster cluster production
-CRITICAL: (slave1.local lagging 199405 seconds) (slave3.local 22 seconds) (slave2.local 21 seconds)
+###\# ./check_slonycluster db01.local cluster productiondb
+CRITICAL: (db02.local lagging 199405 seconds) (db03.local 22 seconds) (db04.local 21 seconds)
