@@ -1,7 +1,4 @@
-# check_slonycluster - Nagios plugin for checking Slony-I lag status
-## by William Tisäter
-
-Available for use under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)
+### Available for use under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
 Copyright (c) 2011 by William Tisäter
 
